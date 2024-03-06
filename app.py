@@ -27,5 +27,12 @@ def get_tweets():
     tweets = [tweet.text for tweet in public_tweets]
     return jsonify(tweets)
 
+
+@app.route('/tweets/<crypto>')
+def get_tweets(crypto):
+    public_tweets = api.search(q=crypto, count=100, lang="en")
+    tweets = [tweet.text for tweet in public_tweets]
+    return jsonify(tweets)
+
 if __name__ == '__main__':
     app.run(debug=True)
