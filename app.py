@@ -22,29 +22,17 @@ api = tweepy.API(auth)
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/tweets')
-def get_tweets():
-    public_tweets = api.home_timeline()
-    tweets = [tweet.text for tweet in public_tweets]
-    return jsonify(tweets)
-
-
-@app.route('/tweets/<crypto>')
-def get_tweets(crypto):
-    public_tweets = api.search(q=crypto, count=100, lang="en")
-    tweets = [tweet.text for tweet in public_tweets]
-    return jsonify(tweets)
-
 
 @app.route('/tweets/<crypto>')
 def get_crypto_tweets(crypto):
-    public_tweets = api.search(q=crypto, count=100, lang="en")
-    tweets_data = []
-    for tweet in public_tweets:
-        analysis = TextBlob(tweet.text)
-        sentiment = analysis.sentiment.polarity
-        tweets_data.append({'text': tweet.text, 'sentiment': sentiment})
-    return jsonify(tweets_data)
+    try:
+        query = f"{crypto} -filter:retweets"
+        public_tweets = api.search(q=query, count=100, lang="en", tweet_mode='extended')
+        tweets_data = [{'text': tweet.full_text, 'sentiment': TextBlob(tweet.full_text).sentiment.polarity} for tweet in public_tweets]
+        return jsonify(tweets_data)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 
 
 if __name__ == '__main__':
