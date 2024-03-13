@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from textblob import TextBlob
 import os
 from flask import Flask, jsonify
+from flask import render_template, url_for, flash, redirect
+from .forms import RegistrationForm
 
 app = Flask(__name__)
 
@@ -33,7 +35,14 @@ def get_crypto_tweets(crypto):
     except Exception as e:
         return jsonify({'error': str(e)})
 
-
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # Here you would typically add the user to the database
+        flash(f'Account created for {form.username.data}!', 'success')
+        return redirect(url_for('home'))
+    return render_template('register.html', title='Register', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
